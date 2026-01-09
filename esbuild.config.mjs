@@ -14,8 +14,39 @@ const prod = process.argv[2] === "production";
 
 // adjust the path to your dev vault as needed
 const dev_vault_path = "../obsidian-dev-sandbox/.obsidian/plugins";
-const pluginDir = require("./manifest.json").id;
+const pluginDir = JSON.parse(fs.readFileSync("./manifest.json", "utf8")).id;
 const vaultPath = path.resolve(process.cwd(), dev_vault_path, pluginDir);
+
+const copyToObsidian = {
+	name: "copy-to-obsidian",
+	setup(build) {
+		build.onEnd(() => {
+			if (prod) {
+				return;
+			}
+
+			if (!fs.existsSync(vaultPath)) {
+				fs.mkdirSync(vaultPath, { recursive: true });
+			}
+
+			fs.copyFileSync(
+				"manifest.json",
+				path.join(vaultPath, "manifest.json")
+			);
+
+			if (fs.existsSync("styles.css")) {
+				fs.copyFileSync(
+					"styles.css",
+					path.join(vaultPath, "styles.css")
+				);
+			}
+
+			console.log(
+				`[${new Date().toLocaleTimeString()}] Build finished and files copied to obsidian.`
+			);
+		});
+	},
+};
 
 const context = await esbuild.context({
 	banner: {
@@ -45,21 +76,12 @@ const context = await esbuild.context({
 	sourcemap: prod ? false : "inline",
 	treeShaking: true,
 	outfile: prod ? "main.js" : path.join(vaultPath, "main.js"),
+	plugins: [copyToObsidian],
 });
 
 if (prod) {
 	await context.rebuild();
 	process.exit(0);
 } else {
-	// copy static files to vault plugin directory
-	if (!fs.existsSync(vaultPath)) {
-		fs.mkdirSync(vaultPath, { recursive: true });
-	}
-
-	fs.copyFileSync("manifest.json", path.join(vaultPath, "manifest.json"));
-
-	if (fs.existsSync("styles.css")) {
-		fs.copyFileSync("styles.css", path.join(vaultPath, "styles.css"));
-	}
 	await context.watch();
 }
