@@ -1,12 +1,18 @@
-import LiteGallery from "./main";
+import LiteGallery from "../main";
 import { App, PluginSettingTab, Setting } from "obsidian";
 
+export enum PreviewLayoutOptions {
+	preview = "preview",
+	noPreview = "no_preview",
+	toggle = "toggle",
+}
+
 export interface LiteGallerySettings {
-	image_folders: string[];
+	previewLayout: PreviewLayoutOptions;
 }
 
 export const DEFAULT_SETTINGS: Partial<LiteGallerySettings> = {
-	image_folders: [],
+	previewLayout: PreviewLayoutOptions.preview,
 };
 
 export class LiteGallerySettingTab extends PluginSettingTab {
@@ -22,18 +28,25 @@ export class LiteGallerySettingTab extends PluginSettingTab {
 
 		containerEl.empty();
 
+		containerEl.createEl("h1", {
+			text: "Default Values",
+		});
+
 		new Setting(containerEl)
-			.setName("Image folders")
-			.setDesc(
-				"Comma separated list of folders to search for images (in order of priority)."
-			)
-			.addText((text) =>
-				text
-					.setPlaceholder("/")
-					.setValue(this.plugin.settings.image_folders.join(","))
+			.setName("Layout: Show Preview")
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption(PreviewLayoutOptions.preview, "Show preview")
+					.addOption(PreviewLayoutOptions.noPreview, "Hide preview")
+					.addOption(
+						PreviewLayoutOptions.toggle,
+						"Toggle preview via the slide indicator"
+					)
+					.setValue(this.plugin.settings.previewLayout)
 					.onChange(async (value) => {
-						this.plugin.settings.image_folders = value.split(",");
-						await this.plugin.save_settings();
+						this.plugin.settings.previewLayout =
+							value as PreviewLayoutOptions;
+						await this.plugin.saveSettings();
 					})
 			);
 	}

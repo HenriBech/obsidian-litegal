@@ -1,12 +1,19 @@
+import { PreviewLayoutOptions, LiteGallerySettings } from "./SettingTab";
+
 export class GalleryUI {
 	private _activeSlide = 0;
 	private lightboxEl: HTMLElement;
 	private lightboxImg: HTMLImageElement;
 	private activeContainer: HTMLDivElement;
+	private previewContainer: HTMLDivElement;
 	private img: HTMLImageElement;
 	private indices: HTMLDivElement[] = [];
 
-	constructor(private container: HTMLElement, private images: string[]) {
+	constructor(
+		private container: HTMLElement,
+		private images: string[],
+		public settings: LiteGallerySettings
+	) {
 		this.render();
 		this.createLightbox();
 	}
@@ -41,8 +48,6 @@ export class GalleryUI {
 			cls: "litegal-active",
 		});
 
-		this.createIndex(this.activeContainer);
-
 		this.img = this.activeContainer.createEl("img");
 		this.img.src = this.images[this.activeSlide];
 		this.img.onclick = () => this.openLightbox();
@@ -75,7 +80,20 @@ export class GalleryUI {
 			}
 		});
 
-		this.renderPreviews(gallery, this.img);
+		switch (this.settings.previewLayout) {
+			case PreviewLayoutOptions.preview:
+				this.renderPreviews(gallery, this.img);
+				this.createIndex(this.activeContainer);
+				break;
+			case PreviewLayoutOptions.toggle:
+				this.renderPreviews(gallery, this.img, true);
+				this.createIndex(this.activeContainer, true);
+				break;
+			case PreviewLayoutOptions.noPreview:
+			default:
+				this.createIndex(this.activeContainer);
+				break;
+		}
 	}
 
 	private updateSlide(offset: number, displayImg: HTMLImageElement) {
@@ -87,17 +105,36 @@ export class GalleryUI {
 			this.lightboxImg.src = this.images[this.activeSlide];
 	}
 
-	private createIndex = (parent: HTMLElement) => {
+	private togglePreview = () => {
+		if (this.previewContainer.hasClass("hidden")) {
+			this.previewContainer.removeClass("hidden");
+		} else {
+			this.previewContainer.addClass("hidden");
+		}
+	};
+
+	private createIndex = (parent: HTMLElement, toggle = false) => {
 		const index = parent.createEl("div", {
 			text: `${this.activeSlide + 1} of ${this.images.length}`,
-			cls: "litegal-index",
+			cls: `litegal-index ${toggle && "litegal-index-active"}`,
 		});
+		if (toggle) {
+			index.onclick = this.togglePreview;
+		}
 		this.indices.push(index);
 	};
 
-	private renderPreviews(parent: HTMLElement, mainImg: HTMLImageElement) {
-		const outer = parent.createEl("div", { cls: "litegal-preview-outer" });
-		const previewTrack = outer.createEl("div", { cls: "litegal-preview" });
+	private renderPreviews(
+		parent: HTMLElement,
+		mainImg: HTMLImageElement,
+		hidden: boolean = false
+	) {
+		this.previewContainer = parent.createEl("div", {
+			cls: `litegal-preview-outer ${hidden && "hidden"}`,
+		});
+		const previewTrack = this.previewContainer.createEl("div", {
+			cls: "litegal-preview",
+		});
 
 		this.images.forEach((path, i) => {
 			const pImg = previewTrack.createEl("img", {

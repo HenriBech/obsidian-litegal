@@ -12,7 +12,7 @@ import "styles.css";
 export default class LiteGallery extends Plugin {
 	settings: LiteGallerySettings;
 
-	async load_settings() {
+	async loadSettings() {
 		this.settings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
@@ -20,18 +20,19 @@ export default class LiteGallery extends Plugin {
 		);
 	}
 
-	async save_settings() {
+	async saveSettings() {
 		await this.saveData(this.settings);
 	}
 
 	async onload() {
-		await this.load_settings();
+		await this.loadSettings();
 
 		this.addSettingTab(new LiteGallerySettingTab(this.app, this));
 
 		this.registerMarkdownCodeBlockProcessor("litegal", (source, el, _) => {
+			var codeBlockSettings: LiteGallerySettings = this.settings;
 			const imageList = GalleryProcessor.getImagePaths(this.app, source);
-			new GalleryUI(el, imageList);
+			new GalleryUI(el, imageList, codeBlockSettings);
 		});
 	}
 }
