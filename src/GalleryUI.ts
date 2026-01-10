@@ -1,12 +1,29 @@
 export class GalleryUI {
-	private activeSlide = 0;
-	private scrollSpeed = 0;
+	private _activeSlide = 0;
 	private lightboxEl: HTMLElement;
 	private lightboxImg: HTMLImageElement;
+	private activeContainer: HTMLDivElement;
+	private img: HTMLImageElement;
+	private indices: HTMLDivElement[] = [];
 
 	constructor(private container: HTMLElement, private images: string[]) {
 		this.render();
 		this.createLightbox();
+	}
+
+	get activeSlide(): number {
+		return this._activeSlide;
+	}
+
+	set activeSlide(value) {
+		if (this._activeSlide === value) return;
+		this._activeSlide = value;
+		this.indices.forEach(
+			(i) =>
+				(i.textContent = `${this.activeSlide + 1} of ${
+					this.images.length
+				}`)
+		);
 	}
 
 	private render() {
@@ -20,24 +37,45 @@ export class GalleryUI {
 			return;
 		}
 
-		// Active Image Section
-		const activeContainer = gallery.createEl("div", {
+		this.activeContainer = gallery.createEl("div", {
 			cls: "litegal-active",
 		});
-		const img = activeContainer.createEl("img");
-		img.src = this.images[this.activeSlide];
-		img.onclick = () => this.openLightbox();
 
-		// Navigation Arrows
-		this.createArrow(activeContainer, "◄", "left", () =>
-			this.updateSlide(-1, img)
+		this.createIndex(this.activeContainer);
+
+		this.img = this.activeContainer.createEl("img");
+		this.img.src = this.images[this.activeSlide];
+		this.img.onclick = () => this.openLightbox();
+
+		this.createArrow(this.activeContainer, "➜", "left", () =>
+			this.updateSlide(-1, this.img)
 		);
-		this.createArrow(activeContainer, "►", "right", () =>
-			this.updateSlide(1, img)
+		this.createArrow(this.activeContainer, "➜", "right", () =>
+			this.updateSlide(1, this.img)
 		);
 
-		// Preview Section
-		this.renderPreviews(gallery, img);
+		this.activeContainer.tabIndex = 0;
+		this.activeContainer.focus();
+		this.activeContainer.addEventListener("keydown", (e: KeyboardEvent) => {
+			if (e.key === "ArrowLeft") {
+				this.updateSlide(-1, this.img);
+				e.preventDefault();
+			} else if (e.key === "ArrowRight") {
+				this.updateSlide(1, this.img);
+				e.preventDefault();
+			} else if (e.key === "ArrowDown") {
+				this.updateSlide(-this.activeSlide, this.img);
+				e.preventDefault();
+			} else if (e.key === "ArrowUp") {
+				this.updateSlide(
+					this.images.length - this.activeSlide - 1,
+					this.img
+				);
+				e.preventDefault();
+			}
+		});
+
+		this.renderPreviews(gallery, this.img);
 	}
 
 	private updateSlide(offset: number, displayImg: HTMLImageElement) {
@@ -48,6 +86,14 @@ export class GalleryUI {
 		if (this.lightboxImg)
 			this.lightboxImg.src = this.images[this.activeSlide];
 	}
+
+	private createIndex = (parent: HTMLElement) => {
+		const index = parent.createEl("div", {
+			text: `${this.activeSlide + 1} of ${this.images.length}`,
+			cls: "litegal-index",
+		});
+		this.indices.push(index);
+	};
 
 	private renderPreviews(parent: HTMLElement, mainImg: HTMLImageElement) {
 		const outer = parent.createEl("div", { cls: "litegal-preview-outer" });
@@ -61,6 +107,7 @@ export class GalleryUI {
 			pImg.onclick = () => {
 				this.activeSlide = i;
 				mainImg.src = path;
+				this.activeContainer.focus();
 			};
 		});
 	}
@@ -69,18 +116,13 @@ export class GalleryUI {
 		parent: HTMLElement,
 		text: string,
 		side: string,
-		clickFn: any,
-		hoverFn?: (s: number) => void
+		clickFn: any
 	) {
 		const arrow = parent.createEl("div", {
 			text,
 			cls: `litegal-control litegal-arrow litegal-arrow-${side}`,
 		});
 		if (clickFn) arrow.onclick = clickFn;
-		if (hoverFn) {
-			arrow.onmouseenter = () => hoverFn(side === "left" ? -5 : 5);
-			arrow.onmouseleave = () => hoverFn(0);
-		}
 	}
 
 	private createLightbox() {
@@ -95,18 +137,31 @@ export class GalleryUI {
 			cls: "litegal-lightbox-image",
 		});
 
-		this.lightboxEl.onclick = () => this.lightboxEl.addClass("hidden");
+		this.lightboxEl.onclick = () => this.closeLightbox();
 		content.onclick = (e) => e.stopPropagation();
+
+		this.createIndex(content);
+		this.createArrow(content, "➜", "left", () =>
+			this.updateSlide(-1, this.img)
+		);
+		this.createArrow(content, "➜", "right", () =>
+			this.updateSlide(1, this.img)
+		);
 
 		const close = content.createEl("div", {
 			text: "✕",
 			cls: "litegal-control litegal-lightbox-exit",
 		});
-		close.onclick = () => this.lightboxEl.addClass("hidden");
+		close.onclick = () => this.closeLightbox();
 	}
 
 	private openLightbox() {
 		this.lightboxImg.src = this.images[this.activeSlide];
 		this.lightboxEl.removeClass("hidden");
+	}
+
+	private closeLightbox() {
+		this.lightboxEl.addClass("hidden");
+		this.activeContainer.focus();
 	}
 }

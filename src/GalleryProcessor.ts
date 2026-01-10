@@ -1,10 +1,7 @@
-import { App, getLinkpath, Notice, TFile } from "obsidian";
+import { App, getLinkpath, Notice } from "obsidian";
 
 export class GalleryProcessor {
 	static getImagePaths(app: App, source: string): string[] {
-		const DEFAULT_404 =
-			"https://raw.githubusercontent.com/jpoles1/obsidian-litegal/eb0e30b2709a3081dd8d32ef4371367b95694881/404notfound.jpg";
-
 		return source
 			.split("\n")
 			.map((line) =>
