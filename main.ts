@@ -6,6 +6,7 @@ import {
 	LiteGallerySettingTab,
 } from "./src/SettingTab";
 import { GalleryUI } from "./src/GalleryUI";
+import { processCodeBlockSettings } from "src/SettingProcessor";
 
 import "styles.css";
 
@@ -30,7 +31,8 @@ export default class LiteGallery extends Plugin {
 		this.addSettingTab(new LiteGallerySettingTab(this.app, this));
 
 		this.registerMarkdownCodeBlockProcessor("litegal", (source, el, _) => {
-			var codeBlockSettings: LiteGallerySettings = this.settings;
+			var codeBlockSettings: LiteGallerySettings =
+				processCodeBlockSettings(source, this.settings);
 			const imageList = GalleryProcessor.getImagePaths(this.app, source);
 			new GalleryUI(el, imageList, codeBlockSettings);
 		});

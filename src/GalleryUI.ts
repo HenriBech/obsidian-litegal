@@ -1,4 +1,8 @@
-import { PreviewLayoutOptions, LiteGallerySettings } from "./SettingTab";
+import {
+	PreviewLayoutOptions,
+	LiteGallerySettings,
+	PaginationIndicatorOptions,
+} from "./SettingTab";
 
 export class GalleryUI {
 	private _activeSlide = 0;
@@ -114,6 +118,11 @@ export class GalleryUI {
 	};
 
 	private createIndex = (parent: HTMLElement, toggle = false) => {
+		if (
+			this.settings.paginationIndicator == PaginationIndicatorOptions.hide
+		) {
+			return;
+		}
 		const index = parent.createEl("div", {
 			text: `${this.activeSlide + 1} of ${this.images.length}`,
 			cls: `litegal-index ${toggle && "litegal-index-active"}`,

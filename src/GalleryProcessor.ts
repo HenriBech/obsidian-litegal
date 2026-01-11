@@ -4,6 +4,7 @@ export class GalleryProcessor {
 	static getImagePaths(app: App, source: string): string[] {
 		return source
 			.split("\n")
+			.filter((line) => !line.startsWith("-"))
 			.map((line) =>
 				line
 					.replace(/!?\[\[/, "")
