@@ -12,6 +12,7 @@ export class GalleryUI {
 	private previewContainer: HTMLDivElement;
 	private img: HTMLImageElement;
 	private indices: HTMLDivElement[] = [];
+	private previewImages: HTMLImageElement[] = [];
 
 	constructor(
 		private container: HTMLElement,
@@ -28,7 +29,16 @@ export class GalleryUI {
 
 	set activeSlide(value) {
 		if (this._activeSlide === value) return;
+		this.previewImages[this.activeSlide].removeClass(
+			"litegal-preview-img-active"
+		);
 		this._activeSlide = value;
+		this.previewImages[value].addClass("litegal-preview-img-active");
+		this.previewImages[value].scrollIntoView({
+			behavior: "smooth",
+			block: "nearest",
+			inline: "center",
+		});
 		this.indices.forEach(
 			(i) =>
 				(i.textContent = `${this.activeSlide + 1} of ${
@@ -129,7 +139,9 @@ export class GalleryUI {
 
 		this.images.forEach((path, i) => {
 			const pImg = previewTrack.createEl("img", {
-				cls: "litegal-preview-img",
+				cls: `litegal-preview-img ${
+					i == this.activeSlide && "litegal-preview-img-active"
+				}`,
 			});
 			pImg.src = path;
 			pImg.onclick = () => {
@@ -137,6 +149,7 @@ export class GalleryUI {
 				mainImg.src = path;
 				this.activeContainer.focus();
 			};
+			this.previewImages.push(pImg);
 		});
 	}
 

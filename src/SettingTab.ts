@@ -12,14 +12,31 @@ export enum PaginationIndicatorOptions {
 	hide = "hide",
 }
 
+export enum PreviewAspectOptions {
+	square = "square",
+	fitToHeight = "fit_to_height",
+}
+
+export enum GalleryAspectOptions {
+	contain = "contain",
+	cover = "cover",
+	fitToWidth = "fit_to_width",
+	fitToHeight = "fit_to_height",
+	stretch = "stretch",
+}
+
 export interface LiteGallerySettings {
 	previewLayout: PreviewLayoutOptions;
 	paginationIndicator: PaginationIndicatorOptions;
+	previewAspect: PreviewAspectOptions;
+	galleryAspect: GalleryAspectOptions;
 }
 
 export const DEFAULT_SETTINGS: Partial<LiteGallerySettings> = {
 	previewLayout: PreviewLayoutOptions.preview,
 	paginationIndicator: PaginationIndicatorOptions.show,
+	previewAspect: PreviewAspectOptions.square,
+	galleryAspect: GalleryAspectOptions.contain,
 };
 
 export class LiteGallerySettingTab extends PluginSettingTab {
@@ -59,6 +76,49 @@ export class LiteGallerySettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.previewLayout =
 							value as PreviewLayoutOptions;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Layout: Preview Fit")
+			.setDesc(
+				`-preview_fit: ${PreviewAspectOptions.square} | ${PreviewAspectOptions.fitToHeight}`
+			)
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption(PreviewAspectOptions.square, "Square")
+					.addOption(
+						PreviewAspectOptions.fitToHeight,
+						"Fit-to-Height"
+					)
+					.setValue(this.plugin.settings.previewAspect)
+					.onChange(async (value) => {
+						this.plugin.settings.previewAspect =
+							value as PreviewAspectOptions;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl)
+			.setName("Layout: Gallery Fit")
+			.setDesc(
+				`-gallery_fit: ${GalleryAspectOptions.contain} | ${GalleryAspectOptions.cover} | ${GalleryAspectOptions.fitToWidth} | ${GalleryAspectOptions.fitToHeight} | ${GalleryAspectOptions.stretch}`
+			)
+			.addDropdown((dropdown) =>
+				dropdown
+					.addOption(GalleryAspectOptions.contain, "Contain")
+					.addOption(GalleryAspectOptions.cover, "Cover")
+					.addOption(GalleryAspectOptions.fitToWidth, "Fit-to-Width")
+					.addOption(
+						GalleryAspectOptions.fitToHeight,
+						"Fit-to-Height"
+					)
+					.addOption(GalleryAspectOptions.stretch, "Stretch")
+					.setValue(this.plugin.settings.galleryAspect)
+					.onChange(async (value) => {
+						this.plugin.settings.galleryAspect =
+							value as GalleryAspectOptions;
 						await this.plugin.saveSettings();
 					})
 			);

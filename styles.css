@@ -1,93 +1,145 @@
+/* Variables */
+.litegal,
+.litegal-lightbox-container {
+	--control-bg: rgba(0, 0, 0, 0.2);
+	--control-bg-hover: rgba(0, 0, 0, 0.6);
+	--control-text: rgba(255, 255, 255, 0.5);
+	--control-text-hover: white;
+}
+
 .litegal {
 	width: 100%;
 	cursor: default;
 }
-.litegal-preview-outer {
-	position: relative;
-}
-.litegal-preview {
-	display: flex;
-	align-items: space-around;
-	flex-wrap: nowrap;
-	overflow-x: auto;
-}
 
-.litegal-preview-img {
-	width: 100px;
-	height: 100px;
-	margin: 10px;
-	border: 2px solid #ccc;
-	border-radius: 5px;
-	overflow: hidden;
-	cursor: pointer;
-	flex-shrink: 0;
-	object-fit: cover;
-}
+/* Main Display Area */
 .litegal-active {
 	position: relative;
-}
-
-.litegal-active-inner {
 	display: flex;
 	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+}
+
+.litegal-active img {
+	max-width: 100%;
+	display: block;
+	cursor: pointer;
+}
+
+/* Controls */
+.litegal-control,
+.litegal-index {
+	font-size: 30px;
+	color: var(--control-text);
+	background-color: var(--control-bg);
+	height: 40px;
+	line-height: 40px;
+	border-radius: 10px;
+	text-align: center;
+	user-select: none;
+	transition: background 0.2s, color 0.2s;
+}
+
+.litegal-control:hover,
+.litegal-index:hover {
+	color: var(--control-text-hover);
+	background-color: var(--control-bg-hover);
 }
 
 .litegal-control {
-	font-size: 30px;
-	color: #999;
-	background-color: rgba(0, 0, 0, 0.2);
 	width: 40px;
-	height: 40px;
-	line-height: 40px;
-	text-align: center;
-	border-radius: 10px;
 	cursor: pointer;
-	user-select: none;
-}
-.litegal-control:hover {
-	color: white;
-	background-color: rgba(0, 0, 0, 0.6);
 }
 
 .litegal-arrow {
 	position: absolute;
+	top: 50%;
+	transform: translateY(-50%);
 	margin: 0 10px;
-	top: calc(50% - 20px);
+	z-index: 5;
+}
+
+.litegal-arrow-left {
+	left: 0;
 	transform: rotate(180deg);
 }
 
 .litegal-arrow-right {
 	right: 0;
-	transform: rotate(0deg);
 }
 
+.litegal-index {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	font-size: 17px;
+	padding: 0 15px;
+	cursor: default;
+}
+
+.litegal-index-active {
+	cursor: pointer;
+}
+
+/* Preview Strip */
+.litegal-preview-outer {
+	position: relative;
+	margin-top: 10px;
+}
+
+.litegal-preview {
+	display: flex;
+	gap: 10px;
+	overflow-x: auto;
+	padding-bottom: 5px;
+	scrollbar-width: thin;
+}
+
+.litegal-preview-img {
+	width: 100px;
+	height: 100px;
+	border: 2px solid var(--background-primary-alt);
+	border-radius: 5px;
+	cursor: pointer;
+	flex-shrink: 0;
+	object-fit: cover;
+	transition: border-color 0.2s;
+}
+
+.litegal-preview-img:not(.litegal-preview-img-active):hover {
+	border-color: var(--interactive-hover);
+}
+
+.litegal-preview-img-active {
+	border: 2px solid var(--interactive-accent);
+}
+
+/* Lightbox */
 .litegal-lightbox-container {
 	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0, 0, 0, 0.8);
+	inset: 0;
+	background-color: rgba(0, 0, 0, 0.85);
 	z-index: 1000;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 	cursor: pointer;
 }
 
 .litegal-lightbox {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
+	position: relative;
 	max-width: 90%;
 	max-height: 90%;
-	overflow: hidden;
 	border-radius: 5px;
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 	cursor: default;
 }
 
 .litegal-lightbox-image {
+	display: block;
 	max-width: 100%;
-	max-height: 100%;
+	max-height: 90vh;
+	object-fit: contain;
 }
 
 .litegal-lightbox-exit {
@@ -96,37 +148,14 @@
 	right: 10px;
 }
 
-.litegal-index {
-	position: absolute;
-	top: 10px;
-	left: 10px;
-	font-size: 17px;
-	color: #999;
-	background-color: rgba(0, 0, 0, 0.2);
-	padding: 0px 15px;
-	height: 40px;
-	line-height: 40px;
-	text-align: center;
-	border-radius: 10px;
-	cursor: default;
-	user-select: none;
-}
-.litegal-index:hover {
-	color: white;
-	background-color: rgba(0, 0, 0, 0.6);
-}
-
-.litegal-index-active {
-	cursor: pointer;
-}
-
+/* Helpers */
 .hidden {
-	display: none;
+	display: none !important;
 }
 
 .litegal-no-images {
 	text-align: center;
-	margin: 20px;
-	color: #999;
+	padding: 40px;
+	color: var(--control-text);
 	font-style: italic;
 }
