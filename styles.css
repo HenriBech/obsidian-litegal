@@ -27,6 +27,37 @@
 	cursor: pointer;
 }
 
+/* Aspect Options */
+.litegal-aspect-contain {
+	object-fit: contain;
+	width: 100%;
+	height: var(--gallery-height, 500px);
+}
+
+.litegal-aspect-cover {
+	object-fit: cover;
+	width: 100%;
+	height: var(--gallery-height, 500px);
+}
+
+.litegal-aspect-stretch {
+	width: 100%;
+	height: var(--gallery-height, 500px);
+	object-fit: fill;
+}
+
+.litegal-aspect-fit-to-width {
+	width: 100%;
+	height: auto;
+	object-fit: contain;
+}
+
+.litegal-aspect-fit-to-height {
+	width: auto;
+	max-height: 80vh;
+	object-fit: contain;
+}
+
 /* Controls */
 .litegal-control,
 .litegal-index {

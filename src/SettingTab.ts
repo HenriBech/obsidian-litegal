@@ -3,7 +3,7 @@ import { App, PluginSettingTab, Setting } from "obsidian";
 
 export enum PreviewLayoutOptions {
 	preview = "preview",
-	noPreview = "no_preview",
+	noPreview = "no-preview",
 	toggle = "toggle",
 }
 
@@ -14,29 +14,31 @@ export enum PaginationIndicatorOptions {
 
 export enum PreviewAspectOptions {
 	square = "square",
-	fitToHeight = "fit_to_height",
+	fitToHeight = "fit-to-height",
 }
 
 export enum GalleryAspectOptions {
 	contain = "contain",
 	cover = "cover",
-	fitToWidth = "fit_to_width",
-	fitToHeight = "fit_to_height",
+	fitToWidth = "fit-to-width",
+	fitToHeight = "fit-to-height",
 	stretch = "stretch",
 }
 
 export interface LiteGallerySettings {
-	previewLayout: PreviewLayoutOptions;
 	paginationIndicator: PaginationIndicatorOptions;
+	previewLayout: PreviewLayoutOptions;
 	previewAspect: PreviewAspectOptions;
 	galleryAspect: GalleryAspectOptions;
+	targetHeightPx: number;
 }
 
 export const DEFAULT_SETTINGS: Partial<LiteGallerySettings> = {
-	previewLayout: PreviewLayoutOptions.preview,
 	paginationIndicator: PaginationIndicatorOptions.show,
+	previewLayout: PreviewLayoutOptions.preview,
 	previewAspect: PreviewAspectOptions.square,
-	galleryAspect: GalleryAspectOptions.contain,
+	galleryAspect: GalleryAspectOptions.fitToHeight,
+	targetHeightPx: 500,
 };
 
 export class LiteGallerySettingTab extends PluginSettingTab {
@@ -58,6 +60,25 @@ export class LiteGallerySettingTab extends PluginSettingTab {
 				'These default options can be adjusted for each codeblock. Lines starting with "-" are treated as overrides.'
 			)
 			.setHeading();
+
+		new Setting(containerEl)
+			.setName("Layout: Pagination Indicator")
+			.setDesc(
+				`-pagination: ${PaginationIndicatorOptions.show} | ${PaginationIndicatorOptions.hide}`
+			)
+			.addToggle((toggle) =>
+				toggle
+					.setValue(
+						this.plugin.settings.paginationIndicator ===
+							PaginationIndicatorOptions.show
+					)
+					.onChange(async (value) => {
+						this.plugin.settings.paginationIndicator = value
+							? PaginationIndicatorOptions.show
+							: PaginationIndicatorOptions.hide;
+						await this.plugin.saveSettings();
+					})
+			);
 
 		new Setting(containerEl)
 			.setName("Layout: Gallery Preview")
@@ -124,20 +145,21 @@ export class LiteGallerySettingTab extends PluginSettingTab {
 			);
 
 		new Setting(containerEl)
-			.setName("Layout: Pagination Indicator")
+			.setName("Layout: Target Gallery Height (px)")
 			.setDesc(
-				`-pagination: ${PaginationIndicatorOptions.show} | ${PaginationIndicatorOptions.hide}`
+				"-height: {number} (doesn't apply to Fit-to-Width/Height aspect)"
 			)
-			.addToggle((toggle) =>
-				toggle
-					.setValue(
-						this.plugin.settings.paginationIndicator ===
-							PaginationIndicatorOptions.show
-					)
+			.addText((text) =>
+				text
+					.setPlaceholder("500")
+					.setValue(this.plugin.settings.targetHeightPx.toString())
 					.onChange(async (value) => {
-						this.plugin.settings.paginationIndicator = value
-							? PaginationIndicatorOptions.show
-							: PaginationIndicatorOptions.hide;
+						const sanitized = value.replace(/[^0-9]/g, "");
+						let numericValue = parseInt(sanitized);
+						if (isNaN(numericValue) || numericValue <= 0) {
+							numericValue = DEFAULT_SETTINGS.targetHeightPx!;
+						}
+						this.plugin.settings.targetHeightPx = numericValue;
 						await this.plugin.saveSettings();
 					})
 			);

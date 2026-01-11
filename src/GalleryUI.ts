@@ -3,6 +3,8 @@ import {
 	LiteGallerySettings,
 	PaginationIndicatorOptions,
 	PreviewAspectOptions,
+	DEFAULT_SETTINGS,
+	GalleryAspectOptions,
 } from "./SettingTab";
 
 export class GalleryUI {
@@ -41,7 +43,7 @@ export class GalleryUI {
 		});
 		this.activeContainer?.scrollIntoView({
 			behavior: "smooth",
-			block: "nearest",
+			block: "start",
 			inline: "center",
 		});
 		this._activeSlide = value;
@@ -53,7 +55,7 @@ export class GalleryUI {
 		);
 	}
 
-	private render() {
+	private async render() {
 		const gallery = this.container.createEl("div", { cls: "litegal" });
 
 		if (this.images.length === 0) {
@@ -64,6 +66,11 @@ export class GalleryUI {
 			return;
 		}
 
+		gallery.style.setProperty(
+			"--gallery-height",
+			`${this.settings.targetHeightPx}px`
+		);
+
 		this.activeContainer = gallery.createEl("div", {
 			cls: "litegal-active",
 		});
@@ -71,6 +78,7 @@ export class GalleryUI {
 		this.img = this.activeContainer.createEl("img");
 		this.img.src = this.images[this.activeSlide];
 		this.img.onclick = () => this.openLightbox();
+		this.img.addClass(`litegal-aspect-${this.settings.galleryAspect}`);
 
 		this.createArrow(this.activeContainer, "➜", "left", () =>
 			this.updateSlide(-1, this.img)

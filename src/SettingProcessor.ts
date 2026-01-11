@@ -45,6 +45,20 @@ export const processCodeBlockSettings = (
 		const key = parts[0].trim();
 		const value = parts[1].trim();
 
+		if (key == "height") {
+			const numericValue = parseInt(value);
+
+			if (numericValue > 0) {
+				settings.targetHeightPx = numericValue;
+				return;
+			} else {
+				new Notice(
+					`LiteGallery: Invalid value "${value}" for "height". \nExpected positive integer`
+				);
+				return;
+			}
+		}
+
 		if (!isValidKey(key)) {
 			new Notice(
 				`LiteGallery: Invalid setting key "${key}. Expected one of ${Object.keys(
