@@ -2,6 +2,7 @@ import {
 	PreviewLayoutOptions,
 	LiteGallerySettings,
 	PaginationIndicatorOptions,
+	PreviewAspectOptions,
 } from "./SettingTab";
 
 export class GalleryUI {
@@ -29,16 +30,21 @@ export class GalleryUI {
 
 	set activeSlide(value) {
 		if (this._activeSlide === value) return;
-		this.previewImages[this.activeSlide].removeClass(
+		this.previewImages[this.activeSlide]?.removeClass(
 			"litegal-preview-img-active"
 		);
-		this._activeSlide = value;
-		this.previewImages[value].addClass("litegal-preview-img-active");
-		this.previewImages[value].scrollIntoView({
+		this.previewImages[value]?.addClass("litegal-preview-img-active");
+		this.previewImages[value]?.scrollIntoView({
 			behavior: "smooth",
 			block: "nearest",
 			inline: "center",
 		});
+		this.activeContainer?.scrollIntoView({
+			behavior: "smooth",
+			block: "nearest",
+			inline: "center",
+		});
+		this._activeSlide = value;
 		this.indices.forEach(
 			(i) =>
 				(i.textContent = `${this.activeSlide + 1} of ${
@@ -140,8 +146,10 @@ export class GalleryUI {
 		this.images.forEach((path, i) => {
 			const pImg = previewTrack.createEl("img", {
 				cls: `litegal-preview-img ${
-					i == this.activeSlide && "litegal-preview-img-active"
-				}`,
+					this.settings.previewAspect ==
+						PreviewAspectOptions.square &&
+					"litegal-preview-img-square"
+				} ${i == this.activeSlide && "litegal-preview-img-active"}`,
 			});
 			pImg.src = path;
 			pImg.onclick = () => {

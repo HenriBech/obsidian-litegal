@@ -97,14 +97,17 @@
 }
 
 .litegal-preview-img {
-	width: 100px;
 	height: 100px;
 	border: 2px solid var(--background-primary-alt);
 	border-radius: 5px;
 	cursor: pointer;
 	flex-shrink: 0;
-	object-fit: cover;
 	transition: border-color 0.2s;
+}
+
+.litegal-preview-img-square {
+	width: 100px;
+	object-fit: cover;
 }
 
 .litegal-preview-img:not(.litegal-preview-img-active):hover {

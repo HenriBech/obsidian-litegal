@@ -1,7 +1,9 @@
 import { Notice } from "obsidian";
 import {
+	GalleryAspectOptions,
 	LiteGallerySettings,
 	PaginationIndicatorOptions,
+	PreviewAspectOptions,
 	PreviewLayoutOptions,
 } from "./SettingTab";
 
@@ -14,11 +16,15 @@ export const processCodeBlockSettings = (
 	const keyMapping = {
 		preview: "previewLayout",
 		pagination: "paginationIndicator",
+		preview_aspect: "previewAspect",
+		gallery_aspect: "galleryAspect",
 	} as const;
 
 	const valueMapping: Record<keyof typeof keyMapping, string[]> = {
 		preview: Object.values(PreviewLayoutOptions),
 		pagination: Object.values(PaginationIndicatorOptions),
+		preview_aspect: Object.values(PreviewAspectOptions),
+		gallery_aspect: Object.values(GalleryAspectOptions),
 	};
 
 	const lines = source.split("\n").filter((line) => line.startsWith("-"));
@@ -29,7 +35,7 @@ export const processCodeBlockSettings = (
 
 	lines.forEach((line) => {
 		const parts = line.slice(1).split(":");
-		if (parts.length < 2) {
+		if (parts.length != 2) {
 			new Notice(
 				"LiteGallery: Invalid setting format. Expected '-key: value'"
 			);
