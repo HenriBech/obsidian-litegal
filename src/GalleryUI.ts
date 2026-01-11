@@ -63,26 +63,8 @@ export class GalleryUI {
 			this.updateSlide(1, this.img)
 		);
 
-		this.activeContainer.tabIndex = 0;
+		this.attatchKeyboardNav(this.activeContainer);
 		this.activeContainer.focus();
-		this.activeContainer.addEventListener("keydown", (e: KeyboardEvent) => {
-			if (e.key === "ArrowLeft") {
-				this.updateSlide(-1, this.img);
-				e.preventDefault();
-			} else if (e.key === "ArrowRight") {
-				this.updateSlide(1, this.img);
-				e.preventDefault();
-			} else if (e.key === "ArrowDown") {
-				this.updateSlide(-this.activeSlide, this.img);
-				e.preventDefault();
-			} else if (e.key === "ArrowUp") {
-				this.updateSlide(
-					this.images.length - this.activeSlide - 1,
-					this.img
-				);
-				e.preventDefault();
-			}
-		});
 
 		switch (this.settings.previewLayout) {
 			case PreviewLayoutOptions.preview:
@@ -171,6 +153,28 @@ export class GalleryUI {
 		if (clickFn) arrow.onclick = clickFn;
 	}
 
+	private attatchKeyboardNav(parent: HTMLElement) {
+		parent.tabIndex = 0;
+		parent.addEventListener("keydown", (e: KeyboardEvent) => {
+			if (e.key === "ArrowLeft") {
+				this.updateSlide(-1, this.img);
+				e.preventDefault();
+			} else if (e.key === "ArrowRight") {
+				this.updateSlide(1, this.img);
+				e.preventDefault();
+			} else if (e.key === "ArrowDown") {
+				this.updateSlide(-this.activeSlide, this.img);
+				e.preventDefault();
+			} else if (e.key === "ArrowUp") {
+				this.updateSlide(
+					this.images.length - this.activeSlide - 1,
+					this.img
+				);
+				e.preventDefault();
+			}
+		});
+	}
+
 	private createLightbox() {
 		this.lightboxEl = document.body.createEl("div", {
 			cls: "litegal-lightbox-container hidden",
@@ -181,6 +185,14 @@ export class GalleryUI {
 
 		this.lightboxImg = content.createEl("img", {
 			cls: "litegal-lightbox-image",
+		});
+
+		this.attatchKeyboardNav(this.lightboxEl);
+		this.lightboxEl.addEventListener("keydown", (e: KeyboardEvent) => {
+			if (e.key === "Escape") {
+				this.closeLightbox();
+				e.preventDefault();
+			}
 		});
 
 		this.lightboxEl.onclick = () => this.closeLightbox();
@@ -204,6 +216,7 @@ export class GalleryUI {
 	private openLightbox() {
 		this.lightboxImg.src = this.images[this.activeSlide];
 		this.lightboxEl.removeClass("hidden");
+		this.lightboxEl.focus();
 	}
 
 	private closeLightbox() {

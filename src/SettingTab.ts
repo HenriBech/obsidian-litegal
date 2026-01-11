@@ -38,14 +38,14 @@ export class LiteGallerySettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Layout Options")
 			.setDesc(
-				"These default options can be adjusted for each codeblock. Lines starting with '-' are treated as overrides."
+				'These default options can be adjusted for each codeblock. Lines starting with "-" are treated as overrides.'
 			)
 			.setHeading();
 
 		new Setting(containerEl)
 			.setName("Layout: Gallery Preview")
 			.setDesc(
-				`-preview: "${PreviewLayoutOptions.preview}" | "${PreviewLayoutOptions.noPreview}" | "${PreviewLayoutOptions.toggle}"`
+				`-preview: ${PreviewLayoutOptions.preview} | ${PreviewLayoutOptions.noPreview} | ${PreviewLayoutOptions.toggle}`
 			)
 			.addDropdown((dropdown) =>
 				dropdown
@@ -66,7 +66,7 @@ export class LiteGallerySettingTab extends PluginSettingTab {
 		new Setting(containerEl)
 			.setName("Layout: Pagination Indicator")
 			.setDesc(
-				`-pagination: "${PaginationIndicatorOptions.show}" | "${PaginationIndicatorOptions.hide}"`
+				`-pagination: ${PaginationIndicatorOptions.show} | ${PaginationIndicatorOptions.hide}`
 			)
 			.addToggle((toggle) =>
 				toggle
