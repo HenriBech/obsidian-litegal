@@ -3,8 +3,6 @@ import {
 	LiteGallerySettings,
 	PaginationIndicatorOptions,
 	PreviewAspectOptions,
-	DEFAULT_SETTINGS,
-	GalleryAspectOptions,
 } from "./SettingTab";
 
 export class GalleryUI {
@@ -77,7 +75,10 @@ export class GalleryUI {
 
 		this.img = this.activeContainer.createEl("img");
 		this.img.src = this.images[this.activeSlide];
-		this.img.onclick = () => this.openLightbox();
+		this.img.onclick = (ev) => {
+			this.openLightbox();
+			ev.preventDefault();
+		};
 		this.img.addClass(`litegal-aspect-${this.settings.galleryAspect}`);
 
 		this.createArrow(this.activeContainer, "➜", "left", () =>
@@ -160,10 +161,11 @@ export class GalleryUI {
 				} ${i == this.activeSlide && "litegal-preview-img-active"}`,
 			});
 			pImg.src = path;
-			pImg.onclick = () => {
+			pImg.onclick = (e) => {
 				this.activeSlide = i;
 				mainImg.src = path;
 				this.activeContainer.focus();
+				e.preventDefault();
 			};
 			this.previewImages.push(pImg);
 		});

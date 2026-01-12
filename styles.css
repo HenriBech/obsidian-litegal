@@ -5,6 +5,7 @@
 	--control-bg-hover: rgba(0, 0, 0, 0.6);
 	--control-text: rgba(255, 255, 255, 0.5);
 	--control-text-hover: white;
+	--control-height: 40px;
 }
 
 .litegal {
@@ -64,8 +65,8 @@
 	font-size: 30px;
 	color: var(--control-text);
 	background-color: var(--control-bg);
-	height: 40px;
-	line-height: 40px;
+	height: var(--control-height);
+	line-height: var(--control-height);
 	border-radius: 10px;
 	text-align: center;
 	user-select: none;
@@ -79,14 +80,13 @@
 }
 
 .litegal-control {
-	width: 40px;
+	width: var(--control-height);
 	cursor: pointer;
 }
 
 .litegal-arrow {
 	position: absolute;
-	top: 50%;
-	transform: translateY(-50%);
+	top: calc(50% - var(--control-height) / 2);
 	margin: 0 10px;
 	z-index: 5;
 }
