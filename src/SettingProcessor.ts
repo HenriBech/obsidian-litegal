@@ -35,15 +35,18 @@ export const processCodeBlockSettings = (
 
 	lines.forEach((line) => {
 		const parts = line.slice(1).split(":");
+
+		const key = parts[0].trim();
+		const value = parts[1].trim();
+
+		if (key === "input") return;
+
 		if (parts.length != 2) {
 			new Notice(
 				"LiteGallery: Invalid setting format. Expected '-key: value'"
 			);
 			return;
 		}
-
-		const key = parts[0].trim();
-		const value = parts[1].trim();
 
 		if (key == "height") {
 			const numericValue = parseInt(value);

@@ -30,10 +30,14 @@ export default class LiteGallery extends Plugin {
 
 		this.addSettingTab(new LiteGallerySettingTab(this.app, this));
 
-		this.registerMarkdownCodeBlockProcessor("litegal", (source, el, _) => {
+		this.registerMarkdownCodeBlockProcessor("litegal", (source, el, ctx) => {
 			var codeBlockSettings: LiteGallerySettings =
 				processCodeBlockSettings(source, this.settings);
-			const imageList = GalleryProcessor.getImagePaths(this.app, source);
+			const imageList = GalleryProcessor.getImagePaths(
+				this.app,
+				source,
+				ctx.sourcePath
+			);
 			new GalleryUI(el, imageList, codeBlockSettings);
 		});
 	}
