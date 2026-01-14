@@ -81,10 +81,10 @@ export class GalleryUI {
 		};
 		this.img.addClass(`litegal-aspect-${this.settings.galleryAspect}`);
 
-		this.createArrow(this.activeContainer, "➜", "left", () =>
+		this.createArrow(this.activeContainer, "❮", "left", () =>
 			this.updateSlide(-1, this.img)
 		);
-		this.createArrow(this.activeContainer, "➜", "right", () =>
+		this.createArrow(this.activeContainer, "❯", "right", () =>
 			this.updateSlide(1, this.img)
 		);
 
@@ -230,10 +230,10 @@ export class GalleryUI {
 		content.onclick = (e) => e.stopPropagation();
 
 		this.createIndex(content);
-		this.createArrow(content, "➜", "left", () =>
+		this.createArrow(content, "❮", "left", () =>
 			this.updateSlide(-1, this.img)
 		);
-		this.createArrow(content, "➜", "right", () =>
+		this.createArrow(content, "❯", "right", () =>
 			this.updateSlide(1, this.img)
 		);
 

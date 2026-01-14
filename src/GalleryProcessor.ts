@@ -40,12 +40,15 @@ export class GalleryProcessor {
 		return images;
 	}
 
-	private static processImageLine(
+	public static processImageLine(
 		app: App,
 		line: string,
 		sourcePath: string
 	): string | null {
-		const image = line.replace(/!?\[\[/, "").replace("]]", "").trim();
+		let image = line.replace(/!?\[\[/, "").replace("]]", "").trim();
+		if (image.includes("|")) {
+			image = image.split("|")[0];
+		}
 		if (image.length === 0) return null;
 
 		if (image.match(/^(http|https):\/\//)) return image;
@@ -82,7 +85,6 @@ export class GalleryProcessor {
 		};
 
 		cache.embeds?.forEach((e) => processLink(e.link));
-		cache.links?.forEach((l) => processLink(l.link));
 
 		return paths;
 	}

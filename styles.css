@@ -66,11 +66,12 @@
 	color: var(--control-text);
 	background-color: var(--control-bg);
 	height: var(--control-height);
-	line-height: var(--control-height);
 	border-radius: 10px;
-	text-align: center;
 	user-select: none;
 	transition: background 0.2s, color 0.2s;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .litegal-control:hover,
@@ -93,7 +94,6 @@
 
 .litegal-arrow-left {
 	left: 0;
-	transform: rotate(180deg);
 }
 
 .litegal-arrow-right {

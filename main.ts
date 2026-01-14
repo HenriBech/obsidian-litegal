@@ -40,5 +40,19 @@ export default class LiteGallery extends Plugin {
 			);
 			new GalleryUI(el, imageList, codeBlockSettings);
 		});
+
+		// Check if Bases API is available, possibly redundant
+		if ((this.app as any).plugins?.getPlugin("bases") || typeof (this as any).registerBasesView === "function") {
+			if (typeof (this as any).registerBasesView === "function") {
+				(this as any).registerBasesView("litegal-bases-view", {
+					name: "Lite Gallery",
+					icon: "image-file",
+					factory: (controller: any, containerEl: HTMLElement) => {
+						const { LiteGalleryBasesView } = require("./src/BasesGalleryView");
+						return new LiteGalleryBasesView(controller, containerEl);
+					}
+				});
+			}
+		}
 	}
 }

@@ -93,8 +93,18 @@ https://placekitten.com/800/600
 ```
 ```
 
+## Obsidian Bases Integration
+
+This plugin adds a **Lite Gallery** view type to [Obsidian Bases](https://help.obsidian.md/bases).
+
+1. Open a Base in your vault.
+2. Click the `+` icon to add a new view.
+3. Select **Lite Gallery**.
+4. The view will automatically display images found in the files (either the file itself or image links in properties).
+
 ---
 
 ## Credits
 
 Thanks to [jpoles1](https://github.com/jpoles1) for the original plugin.
+
