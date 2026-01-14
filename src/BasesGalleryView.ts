@@ -13,6 +13,7 @@ export class LiteGalleryBasesView extends BasesView {
 	containerEl: HTMLElement;
 	resizeObserver: ResizeObserver;
 	ui: GalleryUI | null = null;
+	activeFile: TFile | null = null;
 
 	private codeblockRefs: Map<string, Set<string>> = new Map();
 	private files: TFile[] = [];
@@ -21,7 +22,6 @@ export class LiteGalleryBasesView extends BasesView {
 	private isCollapsed: boolean = true;
 
 	constructor(controller: QueryController, containerEl: HTMLElement) {
-		console.log("LiteGalleryBasesView constructor");	
 		super(controller);
 		this.containerEl = containerEl;
 	}
@@ -222,16 +222,17 @@ export class LiteGalleryBasesView extends BasesView {
 			targetHeightPx: this.containerEl.clientHeight - 140,
 		} as LiteGallerySettings;
 
-		const activeSlide = this.ui?.activeSlide;
+		const newIndex = this.activeFile ? this.files.findIndex((f) => f.path === this.activeFile?.path) : undefined;
 
 		this.ui = new GalleryUI(
 			mainContent,
 			images,
 			settings,
 			(index) => {
+				this.activeFile = this.files[index];
 				this.renderSidebar(this.files[index]);
 			},
-			activeSlide
+			newIndex
 		);
 	}
 

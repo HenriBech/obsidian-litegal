@@ -47,8 +47,8 @@ export class GalleryUI {
 			"litegal-preview-img-active"
 		);
 		this.previewImages[value]?.addClass("litegal-preview-img-active");
-		this.scrollToActivePreview();
 		this._activeSlide = value;
+		this.scrollToActivePreview();
 		if (this.onSlideChange) this.onSlideChange(value);
 		this.indices.forEach(
 			(i) =>
