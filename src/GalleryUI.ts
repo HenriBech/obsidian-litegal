@@ -6,7 +6,7 @@ import {
 } from "./SettingTab";
 
 export class GalleryUI {
-	private _activeSlide = 0;
+	private _activeSlide: number;
 	private lightboxEl: HTMLElement;
 	private lightboxImg: HTMLImageElement;
 	private activeContainer: HTMLDivElement;
@@ -19,33 +19,35 @@ export class GalleryUI {
 		private container: HTMLElement,
 		private images: string[],
 		public settings: LiteGallerySettings,
-		private onSlideChange?: (index: number) => void
+		private onSlideChange?: (index: number) => void,
+		private activeSlideInitial: number = 0
 	) {
+		this._activeSlide = this.activeSlideInitial;
 		this.render();
+		this.scrollToActivePreview(false);
 		this.createLightbox();
 		if (this.onSlideChange) this.onSlideChange(this._activeSlide);
 	}
 
-	get activeSlide(): number {
+	public setSlide(index: number) {
+		if (index < 0 || index >= this.images.length) return;
+		this.activeSlide = index;
+		this.img.src = this.images[this.activeSlide];
+		if (this.lightboxImg)
+			this.lightboxImg.src = this.images[this.activeSlide];
+	}
+
+	public get activeSlide(): number {
 		return this._activeSlide;
 	}
 
-	set activeSlide(value) {
+	private set activeSlide(value) {
 		if (this._activeSlide === value) return;
 		this.previewImages[this.activeSlide]?.removeClass(
 			"litegal-preview-img-active"
 		);
 		this.previewImages[value]?.addClass("litegal-preview-img-active");
-		this.previewImages[value]?.scrollIntoView({
-			behavior: "smooth",
-			block: "nearest",
-			inline: "center",
-		});
-		this.activeContainer?.scrollIntoView({
-			behavior: "smooth",
-			block: "start",
-			inline: "center",
-		});
+		this.scrollToActivePreview();
 		this._activeSlide = value;
 		if (this.onSlideChange) this.onSlideChange(value);
 		this.indices.forEach(
@@ -54,6 +56,19 @@ export class GalleryUI {
 					this.images.length
 				}`)
 		);
+	}
+
+	private scrollToActivePreview(smooth: boolean = true) {
+		this.previewImages[this.activeSlide]?.scrollIntoView({
+			behavior: smooth ? "smooth" : "auto",
+			block: "nearest",
+			inline: "center",
+		});
+		this.activeContainer?.scrollIntoView({
+			behavior: smooth ? "smooth" : "auto",
+			block: "start",
+			inline: "center",
+		});
 	}
 
 	private async render() {
@@ -85,10 +100,10 @@ export class GalleryUI {
 		this.img.addClass(`litegal-aspect-${this.settings.galleryAspect}`);
 
 		this.createArrow(this.activeContainer, "❮", "left", () =>
-			this.updateSlide(-1, this.img)
+			this.updateSlide(-1)
 		);
 		this.createArrow(this.activeContainer, "❯", "right", () =>
-			this.updateSlide(1, this.img)
+			this.updateSlide(1)
 		);
 
 		this.attatchKeyboardNav(this.activeContainer);
@@ -110,11 +125,11 @@ export class GalleryUI {
 		}
 	}
 
-	private updateSlide(offset: number, displayImg: HTMLImageElement) {
+	private updateSlide(offset: number) {
 		this.activeSlide =
 			(this.activeSlide + offset + this.images.length) %
 			this.images.length;
-		displayImg.src = this.images[this.activeSlide];
+		this.img.src = this.images[this.activeSlide];
 		if (this.lightboxImg)
 			this.lightboxImg.src = this.images[this.activeSlide];
 	}
@@ -191,19 +206,16 @@ export class GalleryUI {
 		parent.tabIndex = 0;
 		parent.addEventListener("keydown", (e: KeyboardEvent) => {
 			if (e.key === "ArrowLeft") {
-				this.updateSlide(-1, this.img);
+				this.updateSlide(-1);
 				e.preventDefault();
 			} else if (e.key === "ArrowRight") {
-				this.updateSlide(1, this.img);
+				this.updateSlide(1);
 				e.preventDefault();
 			} else if (e.key === "ArrowDown") {
-				this.updateSlide(-this.activeSlide, this.img);
+				this.setSlide(0);
 				e.preventDefault();
 			} else if (e.key === "ArrowUp") {
-				this.updateSlide(
-					this.images.length - this.activeSlide - 1,
-					this.img
-				);
+				this.setSlide(this.images.length - 1);
 				e.preventDefault();
 			}
 		});
@@ -233,12 +245,8 @@ export class GalleryUI {
 		content.onclick = (e) => e.stopPropagation();
 
 		this.createIndex(content);
-		this.createArrow(content, "❮", "left", () =>
-			this.updateSlide(-1, this.img)
-		);
-		this.createArrow(content, "❯", "right", () =>
-			this.updateSlide(1, this.img)
-		);
+		this.createArrow(content, "❮", "left", () => this.updateSlide(-1));
+		this.createArrow(content, "❯", "right", () => this.updateSlide(1));
 
 		const close = content.createEl("div", {
 			text: "✕",
