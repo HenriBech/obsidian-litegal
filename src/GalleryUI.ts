@@ -18,10 +18,12 @@ export class GalleryUI {
 	constructor(
 		private container: HTMLElement,
 		private images: string[],
-		public settings: LiteGallerySettings
+		public settings: LiteGallerySettings,
+		private onSlideChange?: (index: number) => void
 	) {
 		this.render();
 		this.createLightbox();
+		if (this.onSlideChange) this.onSlideChange(this._activeSlide);
 	}
 
 	get activeSlide(): number {
@@ -45,6 +47,7 @@ export class GalleryUI {
 			inline: "center",
 		});
 		this._activeSlide = value;
+		if (this.onSlideChange) this.onSlideChange(value);
 		this.indices.forEach(
 			(i) =>
 				(i.textContent = `${this.activeSlide + 1} of ${
