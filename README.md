@@ -20,7 +20,7 @@ Create a new gallery in your note using the `litegal` codeblock. You can include
 ### referencing Images
 
 **1. Obsidian Wiki-Links**
-Use the standard `[[filename]]` format. You don't need the full path if the file is unique in your vault.
+Use the standard `[[filename]]` wikilinks format. You don't need the full path if the file is unique in your vault.
 
 ```
 ```litegal
@@ -95,12 +95,13 @@ https://placekitten.com/800/600
 
 ## Obsidian Bases Integration
 
-This plugin adds a **Lite Gallery** view type to [Obsidian Bases](https://help.obsidian.md/bases).
+This plugin adds a **Lite Gallery** view type to [Obsidian Bases](https://help.obsidian.md/bases), allowing you to browse image entries with some metadata.
 
-1. Open a Base in your vault.
+### How to use
+1. Open a **Base** in your vault.
 2. Click the `+` icon to add a new view.
 3. Select **Lite Gallery**.
-4. The view will automatically display images found in the files (either the file itself or image links in properties).
+4. The view will automatically display images found in the files (either the file itself or image links).
 
 ---
 

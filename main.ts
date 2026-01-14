@@ -50,7 +50,15 @@ export default class LiteGallery extends Plugin {
 					factory: (controller: any, containerEl: HTMLElement) => {
 						const { LiteGalleryBasesView } = require("./src/BasesGalleryView");
 						return new LiteGalleryBasesView(controller, containerEl);
-					}
+					},
+					options: () => [
+						{
+							key: "show-referenced-images",
+							type: "toggle",
+							displayName: "Also show linked images",
+							default: false
+						}
+					]
 				});
 			}
 		}

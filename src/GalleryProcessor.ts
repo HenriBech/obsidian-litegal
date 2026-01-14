@@ -14,25 +14,19 @@ export class GalleryProcessor {
 			if (!trimmedLine) continue;
 
 			if (trimmedLine.startsWith("-input:")) {
-				const command = trimmedLine.substring(7).trim(); // Remove "-input:"
+				const command = trimmedLine.substring(7).trim();
 				if (command === "note") {
-					images.push(...this.getImagesFromNote(app, sourcePath));
+					this.getFilesFromNote(app, sourcePath).forEach(f => images.push(app.vault.getResourcePath(f)));
 				} else if (command.startsWith("folder-recursive:")) {
 					const folderPath = command.substring(17).trim();
-					images.push(
-						...this.getImagesFromFolder(app, folderPath, true)
-					);
+					this.getFilesFromFolder(app, folderPath, true).forEach(f => images.push(app.vault.getResourcePath(f)));
 				} else if (command.startsWith("folder:")) {
 					const folderPath = command.substring(7).trim();
-					images.push(
-						...this.getImagesFromFolder(app, folderPath, false)
-					);
+					this.getFilesFromFolder(app, folderPath, false).forEach(f => images.push(app.vault.getResourcePath(f)));
 				}
 			} else if (trimmedLine.startsWith("-")) {
-				// Ignore settings
 				continue;
 			} else {
-				// Handle normal image link/path
 				const img = this.processImageLine(app, trimmedLine, sourcePath);
 				if (img) images.push(img);
 			}
@@ -40,18 +34,47 @@ export class GalleryProcessor {
 		return images;
 	}
 
-	public static processImageLine(
+	static getImages(
+		app: App,
+		source: string,
+		sourcePath: string
+	): TFile[] {
+		const lines = source.split("\n");
+		const files: TFile[] = [];
+
+		for (const line of lines) {
+			const trimmedLine = line.trim();
+			if (!trimmedLine || trimmedLine.startsWith("-")) continue;
+
+			if (trimmedLine.startsWith("-input:")) {
+				const command = trimmedLine.substring(7).trim();
+				if (command === "note") {
+					files.push(...this.getFilesFromNote(app, sourcePath));
+				} else if (command.startsWith("folder-recursive:")) {
+					const folderPath = command.substring(17).trim();
+					files.push(...this.getFilesFromFolder(app, folderPath, true));
+				} else if (command.startsWith("folder:")) {
+					const folderPath = command.substring(7).trim();
+					files.push(...this.getFilesFromFolder(app, folderPath, false));
+				}
+			} else {
+				const file = this.resolveImageFile(app, trimmedLine, sourcePath);
+				if (file) files.push(file);
+			}
+		}
+		return files;
+	}
+
+	public static resolveImageFile(
 		app: App,
 		line: string,
 		sourcePath: string
-	): string | null {
+	): TFile | null {
 		let image = line.replace(/!?\[\[/, "").replace("]]", "").trim();
 		if (image.includes("|")) {
 			image = image.split("|")[0];
 		}
-		if (image.length === 0) return null;
-
-		if (image.match(/^(http|https):\/\//)) return image;
+		if (image.length === 0 || image.match(/^(http|https):\/\//)) return null;
 
 		const linkpath = getLinkpath(image);
 		const file = app.metadataCache.getFirstLinkpathDest(
@@ -59,59 +82,72 @@ export class GalleryProcessor {
 			sourcePath
 		);
 
-		if (!file) {
-			new Notice(`LiteGallery: Image not found: ${image}`);
-			return null;
+		if (file instanceof TFile && this.isImage(file)) {
+			return file;
 		}
-		return app.vault.getResourcePath(file);
+		return null;
 	}
 
-	private static getImagesFromNote(app: App, sourcePath: string): string[] {
+	public static processImageLine(
+		app: App,
+		line: string,
+		sourcePath: string
+	): string | null {
+		const trimmed = line.trim();
+		if (trimmed.match(/^(http|https):\/\//)) return trimmed;
+		
+		const file = this.resolveImageFile(app, line, sourcePath);
+		if (file) return app.vault.getResourcePath(file);
+		
+		return null;
+	}
+
+	private static getFilesFromNote(app: App, sourcePath: string): TFile[] {
 		const file = app.vault.getAbstractFileByPath(sourcePath);
 		if (!(file instanceof TFile)) return [];
 
 		const cache = app.metadataCache.getFileCache(file);
 		if (!cache) return [];
 
-		const paths: string[] = [];
+		const files: TFile[] = [];
 		const processLink = (link: string) => {
 			const dest = app.metadataCache.getFirstLinkpathDest(
 				getLinkpath(link),
 				sourcePath
 			);
 			if (dest && dest instanceof TFile && this.isImage(dest)) {
-				paths.push(app.vault.getResourcePath(dest));
+				files.push(dest);
 			}
 		};
 
 		cache.embeds?.forEach((e) => processLink(e.link));
 
-		return paths;
+		return files;
 	}
 
-	private static getImagesFromFolder(
+	private static getFilesFromFolder(
 		app: App,
 		folderPath: string,
 		recursive: boolean
-	): string[] {
+	): TFile[] {
 		const folder = app.vault.getAbstractFileByPath(folderPath);
 		if (!(folder instanceof TFolder)) {
 			new Notice(`LiteGallery: Folder not found: ${folderPath}`);
 			return [];
 		}
 
-		const paths: string[] = [];
+		const files: TFile[] = [];
 		const traverse = (currentFolder: TFolder) => {
 			for (const child of currentFolder.children) {
 				if (child instanceof TFile && this.isImage(child)) {
-					paths.push(app.vault.getResourcePath(child));
+					files.push(child);
 				} else if (recursive && child instanceof TFolder) {
 					traverse(child);
 				}
 			}
 		};
 		traverse(folder);
-		return paths;
+		return files;
 	}
 
 	private static isImage(file: TFile): boolean {

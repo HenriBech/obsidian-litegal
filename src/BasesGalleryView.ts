@@ -5,12 +5,14 @@ import {
 } from "obsidian";
 import { GalleryUI } from "./GalleryUI";
 import { LiteGallerySettings, DEFAULT_SETTINGS, GalleryAspectOptions, PreviewAspectOptions } from "./SettingTab";
+import { GalleryProcessor } from "./GalleryProcessor";
 
 export class LiteGalleryBasesView extends BasesView {
 	type = "litegal-bases-view";
 	containerEl: HTMLElement;
 	resizeObserver: ResizeObserver;
 
+	private codeblockRefs: Map<string, Set<string>> = new Map();
 	private files: TFile[] = [];
 	private sidebarEl: HTMLElement;
 	private sidebarWidth: number = 200;
@@ -46,17 +48,90 @@ export class LiteGalleryBasesView extends BasesView {
 		}
 	}
 
-	onDataUpdated(): void {
+	async onDataUpdated(): Promise<void> {
 		this.containerEl.empty();
 		this.files = [];
+		this.codeblockRefs.clear();
 		const images: string[] = [];
+		const addedPaths = new Set<string>();
 
-		if (this.data && this.data.data) {
-			for (const entry of this.data.data) {
-				if (entry.file instanceof TFile && this.isImage(entry.file.extension)) {
-					const path = this.app.vault.getResourcePath(entry.file);
-					images.push(path);
-					this.files.push(entry.file);
+		const data = (this as any).data;
+		const viewConfig = (this as any).config;
+		const showReferenced = viewConfig?.get("show-referenced-images") === true;
+
+		if (data && data.data) {
+			for (const entry of data.data) {
+				if (!(entry.file instanceof TFile)) continue;
+				
+				// 1. Handle actual image files
+				if (this.isImage(entry.file.extension)) {
+					const path = entry.file.path;
+					if (!addedPaths.has(path)) {
+						images.push(this.app.vault.getResourcePath(entry.file));
+						this.files.push(entry.file);
+						addedPaths.add(path);
+					}
+				} 
+				
+				// 2. Handle markdown files (references)
+				if (entry.file.extension.toLowerCase() === "md") {
+					const content = await this.app.vault.read(entry.file);
+					
+					// Scan markdown for litegal blocks (always done for sidebar references)
+					const regex = /```\s*litegal\s*([\s\S]*?)```/g;
+					let match;
+					while ((match = regex.exec(content)) !== null) {
+						const source = match[1];
+						const extractedFiles = GalleryProcessor.getImages(this.app, source, entry.file.path);
+						for (const f of extractedFiles) {
+							// For sidebar mapping
+							if (!this.codeblockRefs.has(f.path)) {
+								this.codeblockRefs.set(f.path, new Set());
+							}
+							this.codeblockRefs.get(f.path)?.add(entry.file.path);
+
+							// If showReferenced is ON, also add to main gallery
+							if (showReferenced && !addedPaths.has(f.path)) {
+								images.push(this.app.vault.getResourcePath(f));
+								this.files.push(f);
+								addedPaths.add(f.path);
+							}
+						}
+					}
+
+					// If showReferenced is ON, also scan for standard embeds and properties
+					if (showReferenced) {
+						// Content Embeds
+						const cache = this.app.metadataCache.getFileCache(entry.file);
+						if (cache && cache.embeds) {
+							for (const embed of cache.embeds) {
+								const file = this.app.metadataCache.getFirstLinkpathDest(embed.link, entry.file.path);
+								if (file instanceof TFile && this.isImage(file.extension) && !addedPaths.has(file.path)) {
+									images.push(this.app.vault.getResourcePath(file));
+									this.files.push(file);
+									addedPaths.add(file.path);
+								}
+							}
+						}
+
+						// Property Links
+						const allProps = (this as any).allProperties;
+						if (allProps) {
+							for (const propId of allProps) {
+								const val = entry.getValue(propId);
+								if (val && (val.constructor.name === "LinkValue" || val.constructor.name === "ImageValue" || val.constructor.name === "StringValue")) {
+									const linkText = val.toString();
+									// Try to resolve as image
+									const file = this.app.metadataCache.getFirstLinkpathDest(linkText.replace(/!?\[\[/, "").replace("]]", "").split("|")[0], entry.file.path);
+									if (file instanceof TFile && this.isImage(file.extension) && !addedPaths.has(file.path)) {
+										images.push(this.app.vault.getResourcePath(file));
+										this.files.push(file);
+										addedPaths.add(file.path);
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}
@@ -83,7 +158,6 @@ export class LiteGalleryBasesView extends BasesView {
 
 		this.initResizer(resizer);
 
-		// Add collapse toggle to gallery space
 		const toggle = mainContent.createEl("div", { 
 			cls: `litegal-control litegal-sidebar-toggle ${this.isCollapsed ? "collapsed" : ""}`,
 			text: this.isCollapsed ? "ⓘ" : "»"
@@ -158,9 +232,14 @@ export class LiteGalleryBasesView extends BasesView {
 		const refsContainer = this.sidebarEl.createEl("div", { cls: "litegal-sidebar-section litegal-refs" });
 		
 		const backlinks = this.app.metadataCache.getBacklinksForFile(file);
-		const refPaths = backlinks.keys();
+		const refPaths = new Set(backlinks.keys());
 		
-		if (refPaths.length === 0) {
+		const customRefs = this.codeblockRefs.get(file.path);
+		if (customRefs) {
+			customRefs.forEach(path => refPaths.add(path));
+		}
+		
+		if (refPaths.size === 0) {
 			refsContainer.createEl("div", { text: "No backlinks found.", cls: "litegal-no-refs" });
 		} else {
 			const list = refsContainer.createEl("ul");
