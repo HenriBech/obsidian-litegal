@@ -22,34 +22,33 @@ Create a new gallery in your note using the `litegal` codeblock. You can include
 **1. Obsidian Wiki-Links**
 Use the standard `[[filename]]` wikilinks format. You don't need the full path if the file is unique in your vault.
 
-```
+~~~
 ```litegal
 [[image1.jpg]]
 [[Folder/image2.png]]
 ```
-```
+~~~
 
 **2. Web Links**
 Directly paste `http` or `https` URLs.
 
-```
+~~~
 ```litegal
 https://images.unsplash.com/photo-1.jpg
 https://example.com/chart.png
 ```
-```
+~~~
 
 **3. Mixed Usage**
 You can mix both local files and web links in the same gallery.
 
-```
-```
+~~~
 ```litegal
 [[my-local-chart.png]]
 https://images.unsplash.com/photo-2.jpg
 [[screenshot.jpg]]
 ```
-```
+~~~
 
 **4. Advanced Input Options**
 You can automatically load images using the following input commands:
@@ -57,12 +56,12 @@ You can automatically load images using the following input commands:
 *   `-input:folder:path/to/folder`: Loads all images in the specified folder.
 *   `-input:folder-recursive:path/to/folder`: Loads all images in the specified folder and its subfolders.
 
-```
+~~~
 ```litegal
 -input:note
 -input:folder:Attachments/Vacation
 ```
-```
+~~~
 
 ## Configuration
 
@@ -82,7 +81,7 @@ You can configure the gallery appearance directly inside the codeblock using inl
 
 ### Example with Configuration
 
-```
+~~~
 ```litegal
 -preview: toggle
 -gallery_aspect: contain
@@ -91,7 +90,7 @@ You can configure the gallery appearance directly inside the codeblock using inl
 [[ArchitectureDiagram.png]]
 https://placekitten.com/800/600
 ```
-```
+~~~
 
 ## Obsidian Bases Integration
 
