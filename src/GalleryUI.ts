@@ -29,6 +29,10 @@ export class GalleryUI {
 		if (this.onSlideChange) this.onSlideChange(this._activeSlide);
 	}
 
+	public get activeSlide(): number {
+		return this._activeSlide;
+	}
+
 	public setSlide(index: number) {
 		if (index < 0 || index >= this.images.length) return;
 		this.activeSlide = index;
@@ -37,8 +41,8 @@ export class GalleryUI {
 			this.lightboxImg.src = this.images[this.activeSlide];
 	}
 
-	public get activeSlide(): number {
-		return this._activeSlide;
+	public focus() {
+		this.activeContainer.focus();
 	}
 
 	private set activeSlide(value) {
@@ -107,7 +111,7 @@ export class GalleryUI {
 		);
 
 		this.attatchKeyboardNav(this.activeContainer);
-		this.activeContainer.focus();
+		this.focus();
 
 		switch (this.settings.previewLayout) {
 			case PreviewLayoutOptions.preview:
@@ -182,7 +186,7 @@ export class GalleryUI {
 			pImg.onclick = (e) => {
 				this.activeSlide = i;
 				mainImg.src = path;
-				this.activeContainer.focus();
+				this.focus();
 				e.preventDefault();
 			};
 			this.previewImages.push(pImg);
@@ -263,6 +267,6 @@ export class GalleryUI {
 
 	private closeLightbox() {
 		this.lightboxEl.addClass("hidden");
-		this.activeContainer.focus();
+		this.focus();
 	}
 }

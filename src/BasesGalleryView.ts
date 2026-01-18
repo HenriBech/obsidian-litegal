@@ -213,6 +213,7 @@ export class LiteGalleryBasesView extends BasesView {
 					this.renderSidebar(this.files[this.ui.activeSlide]);
 				}
 			}
+			this.ui?.focus();
 		};
 
 		const settings: LiteGallerySettings = {
