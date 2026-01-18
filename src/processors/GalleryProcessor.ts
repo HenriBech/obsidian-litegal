@@ -1,5 +1,9 @@
 import { App, getLinkpath, Notice, TFile, TFolder } from "obsidian";
+import { isImage } from "../utils/imageUtils";
 
+/**
+ * Processes gallery codeblock source to extract images
+ */
 export class GalleryProcessor {
 	static getImagePaths(
 		app: App,
@@ -82,7 +86,7 @@ export class GalleryProcessor {
 			sourcePath
 		);
 
-		if (file instanceof TFile && this.isImage(file)) {
+		if (file instanceof TFile && isImage(file.extension)) {
 			return file;
 		}
 		return null;
@@ -115,7 +119,7 @@ export class GalleryProcessor {
 				getLinkpath(link),
 				sourcePath
 			);
-			if (dest && dest instanceof TFile && this.isImage(dest)) {
+			if (dest && dest instanceof TFile && isImage(dest.extension)) {
 				files.push(dest);
 			}
 		};
@@ -139,7 +143,7 @@ export class GalleryProcessor {
 		const files: TFile[] = [];
 		const traverse = (currentFolder: TFolder) => {
 			for (const child of currentFolder.children) {
-				if (child instanceof TFile && this.isImage(child)) {
+				if (child instanceof TFile && isImage(child.extension)) {
 					files.push(child);
 				} else if (recursive && child instanceof TFolder) {
 					traverse(child);
@@ -148,10 +152,5 @@ export class GalleryProcessor {
 		};
 		traverse(folder);
 		return files;
-	}
-
-	private static isImage(file: TFile): boolean {
-		const extensions = ["png", "jpg", "jpeg", "gif", "bmp", "svg", "webp"];
-		return extensions.includes(file.extension.toLowerCase());
 	}
 }

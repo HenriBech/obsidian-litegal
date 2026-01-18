@@ -21,6 +21,6 @@
 		"obsidian": "latest",
 		"obsidian-typings": "^4.90.0",
 		"tslib": "2.4.0",
-		"typescript": "4.8.*"
+		"typescript": "^5.9.3"
 	}
 }

@@ -5,8 +5,11 @@ import {
 	PaginationIndicatorOptions,
 	PreviewAspectOptions,
 	PreviewLayoutOptions,
-} from "./SettingTab";
+} from "../types";
 
+/**
+ * Process codeblock settings to override defaults
+ */
 export const processCodeBlockSettings = (
 	source: string,
 	defaults: LiteGallerySettings
