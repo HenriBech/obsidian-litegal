@@ -28,6 +28,15 @@ export interface LiteGallerySettings {
 	previewAspect: PreviewAspectOptions;
 	galleryAspect: GalleryAspectOptions;
 	targetHeightPx: number;
+	hotkeys: {
+		previous: string;
+		next: string;
+		first: string;
+		last: string;
+		escape: string;
+		toggleLightbox: string;
+		toggleInfo: string;
+	};
 }
 
 export const DEFAULT_SETTINGS: Partial<LiteGallerySettings> = {
@@ -36,4 +45,16 @@ export const DEFAULT_SETTINGS: Partial<LiteGallerySettings> = {
 	previewAspect: PreviewAspectOptions.square,
 	galleryAspect: GalleryAspectOptions.fitToHeight,
 	targetHeightPx: 500,
+	hotkeys: {
+		previous: "ArrowLeft",
+		next: "ArrowRight",
+		first: "ArrowDown",
+		last: "ArrowUp",
+		escape: "Escape",
+		toggleLightbox: " ",
+		toggleInfo: "i",
+	},
 };
+
+// Re-export ImageLoadState for convenience
+export { ImageLoadState } from "./utils/ImageLoader";

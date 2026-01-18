@@ -1,6 +1,7 @@
 import { App, TFile } from "obsidian";
 import { GalleryProcessor } from "../processors/GalleryProcessor";
 import { isImage } from "../utils/imageUtils";
+import { BasesViewData, BasesViewConfig, BasesDataEntry } from "./BasesViewTypes";
 
 export interface ImageCollectionResult {
 	images: string[];
@@ -16,8 +17,8 @@ export class ImageCollector {
 	 * Collect all images from the view data
 	 */
 	static async collectImagesFromData(
-		data: any,
-		viewConfig: any,
+		data: BasesViewData,
+		viewConfig: BasesViewConfig,
 		app: App
 	): Promise<ImageCollectionResult> {
 		const images: string[] = [];
@@ -25,35 +26,43 @@ export class ImageCollector {
 		const codeblockRefs = new Map<string, Set<string>>();
 		const addedPaths = new Set<string>();
 
-		const showReferenced = viewConfig?.get("show-referenced-images") === true;
+		try {
+			const showReferenced = viewConfig?.get("show-referenced-images") === true;
 
-		if (data && data.data) {
-			for (const entry of data.data) {
-				if (!(entry.file instanceof TFile)) continue;
+			if (data && data.data) {
+				for (const entry of data.data) {
+					if (!(entry.file instanceof TFile)) continue;
 
-				// Direct image files
-				if (isImage(entry.file.extension)) {
-					const path = entry.file.path;
-					if (!addedPaths.has(path)) {
-						images.push(app.vault.getResourcePath(entry.file));
-						files.push(entry.file);
-						addedPaths.add(path);
+					// Direct image files
+					if (isImage(entry.file.extension)) {
+						const path = entry.file.path;
+						if (!addedPaths.has(path)) {
+							images.push(app.vault.getResourcePath(entry.file));
+							files.push(entry.file);
+							addedPaths.add(path);
+						}
+					}
+
+					// Process markdown files
+					if (entry.file.extension.toLowerCase() === "md") {
+						try {
+							await this.processMarkdownFile(
+								entry,
+								app,
+								images,
+								files,
+								codeblockRefs,
+								addedPaths,
+								showReferenced
+							);
+						} catch (e) {
+							console.error(`LiteGallery: Error processing markdown file ${entry.file.path}`, e);
+						}
 					}
 				}
-
-				// Process markdown files
-				if (entry.file.extension.toLowerCase() === "md") {
-					await this.processMarkdownFile(
-						entry,
-						app,
-						images,
-						files,
-						codeblockRefs,
-						addedPaths,
-						showReferenced
-					);
-				}
 			}
+		} catch (e) {
+			console.error("LiteGallery: Error collecting images from data", e);
 		}
 
 		return { images, files, codeblockRefs };
@@ -63,7 +72,7 @@ export class ImageCollector {
 	 * Process a markdown file to extract images
 	 */
 	private static async processMarkdownFile(
-		entry: any,
+		entry: BasesDataEntry,
 		app: App,
 		images: string[],
 		files: TFile[],

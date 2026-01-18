@@ -7,6 +7,8 @@ export interface NavigationHandlers {
 	onFirst?: () => void;
 	onLast?: () => void;
 	onEscape?: () => void;
+	onToggleLightbox?: () => void;
+	onToggleInfo?: () => void;
 }
 
 /**
@@ -14,24 +16,31 @@ export interface NavigationHandlers {
  */
 export function setupKeyboardNavigation(
 	element: HTMLElement,
-	handlers: NavigationHandlers
+	handlers: NavigationHandlers,
+	hotkeys: { [key: string]: string }
 ): void {
 	element.tabIndex = 0;
 	element.addEventListener("keydown", (e: KeyboardEvent) => {
-		if (e.key === "ArrowLeft") {
+		if (e.key === hotkeys.previous) {
 			handlers.onPrevious();
 			e.preventDefault();
-		} else if (e.key === "ArrowRight") {
+		} else if (e.key === hotkeys.next) {
 			handlers.onNext();
 			e.preventDefault();
-		} else if (e.key === "ArrowDown" && handlers.onFirst) {
+		} else if (e.key === hotkeys.first && handlers.onFirst) {
 			handlers.onFirst();
 			e.preventDefault();
-		} else if (e.key === "ArrowUp" && handlers.onLast) {
+		} else if (e.key === hotkeys.last && handlers.onLast) {
 			handlers.onLast();
 			e.preventDefault();
-		} else if (e.key === "Escape" && handlers.onEscape) {
+		} else if (e.key === hotkeys.escape && handlers.onEscape) {
 			handlers.onEscape();
+			e.preventDefault();
+		} else if (e.key === hotkeys.toggleLightbox && handlers.onToggleLightbox) {
+			handlers.onToggleLightbox();
+			e.preventDefault();
+		} else if (e.key === hotkeys.toggleInfo && handlers.onToggleInfo) {
+			handlers.onToggleInfo();
 			e.preventDefault();
 		}
 	});

@@ -331,3 +331,70 @@
 	color: var(--text-muted);
 	font-style: italic;
 }
+
+/* Loading and Error States */
+.litegal-loading {
+	filter: blur(5px);
+	transition: filter 0.3s ease-in-out;
+}
+
+.litegal-loader {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 40px;
+	color: var(--text-muted);
+	font-style: italic;
+	width: 100%;
+}
+
+.litegal-loader::before {
+	content: "";
+	width: 20px;
+	height: 20px;
+	border: 2px solid var(--text-muted);
+	border-top-color: var(--interactive-accent);
+	border-radius: 50%;
+	margin-right: 10px;
+	animation: litegal-spin 1s linear infinite;
+}
+
+@keyframes litegal-spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.litegal-error-message {
+	background-color: var(--background-modifier-error);
+	color: var(--text-on-accent);
+	padding: 15px;
+	border-radius: 4px;
+	margin: 10px;
+	font-size: 0.9em;
+}
+
+.litegal-image-error {
+	object-fit: contain !important;
+	padding: 20px;
+	background-color: var(--background-secondary);
+	opacity: 0.5;
+}
+
+.litegal-empty-state {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
+	width: 100%;
+	padding: 40px;
+	text-align: center;
+	color: var(--text-muted);
+}
+
+.litegal-empty-state h3 {
+	margin-top: 0;
+	color: var(--text-normal);
+}
+

@@ -13,7 +13,9 @@ export class Lightbox {
 	constructor(
 		private images: string[],
 		private paginationIndicator: PaginationIndicatorOptions,
-		private onSlideChange?: (index: number) => void
+		private hotkeys: { [key: string]: string },
+		private onSlideChange?: (index: number) => void,
+		private onLightboxClose?: () => void,
 	) {
 		this.createLightbox();
 	}
@@ -41,6 +43,16 @@ export class Lightbox {
 	 */
 	close(): void {
 		this.containerEl.addClass("hidden");
+		if (this.onLightboxClose) {
+			this.onLightboxClose();
+		}
+	}
+
+	/**
+	 * Check if lightbox is currently open
+	 */
+	isOpen(): boolean {
+		return !this.containerEl.hasClass("hidden");
 	}
 
 	/**
@@ -88,7 +100,8 @@ export class Lightbox {
 			onFirst: () => this.setSlide(0),
 			onLast: () => this.setSlide(this.images.length - 1),
 			onEscape: () => this.close(),
-		});
+			onToggleLightbox: () => this.close(),
+		}, this.hotkeys);
 
 		this.containerEl.onclick = () => this.close();
 		content.onclick = (e) => e.stopPropagation();

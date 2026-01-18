@@ -37,9 +37,9 @@ const copyToObsidian = {
 				path.join(vaultPath, "manifest.json")
 			);
 
-			if (fs.existsSync("styles.css")) {
+			if (fs.existsSync("src/styles.css")) {
 				fs.copyFileSync(
-					"styles.css",
+					"src/styles.css",
 					path.join(vaultPath, "styles.css")
 				);
 			}
@@ -55,7 +55,7 @@ const context = await esbuild.context({
 	banner: {
 		js: banner,
 	},
-	entryPoints: ["main.ts"],
+	entryPoints: ["src/main.ts"],
 	bundle: true,
 	external: [
 		"obsidian",

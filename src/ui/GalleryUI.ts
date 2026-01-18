@@ -6,6 +6,7 @@ import {
 import { Lightbox } from "./Lightbox";
 import { PreviewStrip } from "./PreviewStrip";
 import { createArrow, setupKeyboardNavigation } from "./GalleryNavigation";
+import { ImageLoader } from "../utils/ImageLoader";
 
 /**
  * Main gallery UI component that orchestrates the display
@@ -23,13 +24,16 @@ export class GalleryUI {
 		private images: string[],
 		public settings: LiteGallerySettings,
 		private onSlideChange?: (index: number) => void,
-		private activeSlideInitial: number = 0
+		private activeSlideInitial: number = 0,
+		private onToggleInfo?: () => void
 	) {
 		this._activeSlide = this.activeSlideInitial;
 		this.lightbox = new Lightbox(
 			images,
 			settings.paginationIndicator,
-			(index) => this.handleLightboxSlideChange(index)
+			settings.hotkeys as any,
+			(index: number) => this.handleLightboxSlideChange(index),
+			() => this.focus()
 		);
 		this.render();
 		this.scrollToActive(false);
@@ -49,8 +53,7 @@ export class GalleryUI {
 	public setSlide(index: number): void {
 		if (index < 0 || index >= this.images.length) return;
 		this.activeSlide = index;
-		this.img.src = this.images[this.activeSlide];
-		this.lightbox.setSlide(index);
+		this.updateActiveImage(index);
 	}
 
 	/**
@@ -109,12 +112,17 @@ export class GalleryUI {
 		});
 
 		this.img = this.activeContainer.createEl("img");
-		this.img.src = this.images[this.activeSlide];
 		this.img.onclick = (ev) => {
 			this.lightbox.open(this.activeSlide);
 			ev.preventDefault();
 		};
 		this.img.addClass(`litegal-aspect-${this.settings.galleryAspect}`);
+		
+		// Load initial image with loading state
+		ImageLoader.loadImmediate(this.img, this.images[this.activeSlide]).then(() => {
+			// Preload adjacent images after initial load
+			ImageLoader.preloadAdjacent(this.images, this.activeSlide);
+		});
 
 		createArrow(this.activeContainer, "❮", "left", () =>
 			this.updateSlide(-1)
@@ -128,7 +136,9 @@ export class GalleryUI {
 			onNext: () => this.updateSlide(1),
 			onFirst: () => this.setSlide(0),
 			onLast: () => this.setSlide(this.images.length - 1),
-		});
+			onToggleLightbox: () => this.toggleLightbox(),
+			onToggleInfo: () => this.onToggleInfo?.(),
+		}, this.settings.hotkeys);
 
 		this.focus();
 
@@ -159,8 +169,7 @@ export class GalleryUI {
 			this.settings.previewAspect,
 			(index) => {
 				this.activeSlide = index;
-				this.img.src = this.images[index];
-				this.lightbox.setSlide(index);
+				this.updateActiveImage(index);
 				this.focus();
 			}
 		);
@@ -174,8 +183,7 @@ export class GalleryUI {
 		this.activeSlide =
 			(this.activeSlide + offset + this.images.length) %
 			this.images.length;
-		this.img.src = this.images[this.activeSlide];
-		this.lightbox.setSlide(this.activeSlide);
+		this.updateActiveImage(this.activeSlide);
 	}
 
 	/**
@@ -183,7 +191,29 @@ export class GalleryUI {
 	 */
 	private handleLightboxSlideChange(index: number): void {
 		this.activeSlide = index;
-		this.img.src = this.images[index];
+		this.updateActiveImage(index);
+	}
+
+	/**
+	 * Update the active image with loading and preloading
+	 */
+	private updateActiveImage(index: number): void {
+		ImageLoader.loadImmediate(this.img, this.images[index]).then(() => {
+			// Preload adjacent images
+			ImageLoader.preloadAdjacent(this.images, index);
+		});
+		this.lightbox.setSlide(index);
+	} 
+
+	/**
+	 * Toggle the lightbox overlay
+	 */
+	private toggleLightbox(): void {
+		if (this.lightbox.isOpen()) {
+			this.lightbox.close();
+		} else {
+			this.lightbox.open(this.activeSlide);
+		}
 	}
 
 	/**

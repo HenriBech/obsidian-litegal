@@ -1,14 +1,14 @@
 import { Plugin } from "obsidian";
-import { GalleryProcessor } from "./src/processors/GalleryProcessor";
+import { GalleryProcessor } from "./processors/GalleryProcessor";
 import {
 	LiteGallerySettings,
 	DEFAULT_SETTINGS,
-} from "./src/types";
-import { LiteGallerySettingTab } from "./src/settings/SettingTab";
-import { GalleryUI } from "./src/ui/GalleryUI";
-import { processCodeBlockSettings } from "./src/settings/SettingProcessor";
+} from "./types";
+import { LiteGallerySettingTab } from "./settings/SettingTab";
+import { GalleryUI } from "./ui/GalleryUI";
+import { processCodeBlockSettings } from "./settings/SettingProcessor";
 
-import "styles.css";
+import "./styles.css";
 
 export default class LiteGallery extends Plugin {
 	settings: LiteGallerySettings;
@@ -48,7 +48,7 @@ export default class LiteGallery extends Plugin {
 					name: "Lite Gallery",
 					icon: "image-file",
 					factory: (controller: any, containerEl: HTMLElement) => {
-						const { LiteGalleryBasesView } = require("./src/gallery/BasesGalleryView");
+						const { LiteGalleryBasesView } = require("./gallery/BasesGalleryView");
 						return new LiteGalleryBasesView(controller, containerEl);
 					},
 					options: () => [

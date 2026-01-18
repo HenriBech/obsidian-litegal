@@ -1,4 +1,5 @@
 import { PreviewAspectOptions } from "../types";
+import { ImageLoader } from "../utils/ImageLoader";
 
 /**
  * Manages the preview strip showing thumbnails of all images
@@ -34,7 +35,10 @@ export class PreviewStrip {
 					"litegal-preview-img-square"
 				} ${i === this._activeSlide && "litegal-preview-img-active"}`,
 			});
-			pImg.src = path;
+			
+			// Use lazy loading for preview thumbnails
+			ImageLoader.setupLazyLoad(pImg, path);
+
 			pImg.onclick = (e) => {
 				this.setActiveSlide(i);
 				this.onPreviewClick(i);

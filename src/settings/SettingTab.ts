@@ -1,4 +1,4 @@
-import LiteGallery from "../../main";
+import LiteGallery from "../main";
 import { App, PluginSettingTab, Setting } from "obsidian";
 import {
 	PreviewLayoutOptions,
@@ -6,6 +6,7 @@ import {
 	PreviewAspectOptions,
 	GalleryAspectOptions,
 	DEFAULT_SETTINGS,
+	LiteGallerySettings,
 } from "../types";
 
 /**
@@ -130,6 +131,40 @@ export class LiteGallerySettingTab extends PluginSettingTab {
 							numericValue = DEFAULT_SETTINGS.targetHeightPx!;
 						}
 						this.plugin.settings.targetHeightPx = numericValue;
+						await this.plugin.saveSettings();
+					})
+			);
+
+		new Setting(containerEl).setName("Keyboard Shortcuts").setHeading();
+
+		const hotkeys = this.plugin.settings.hotkeys;
+
+		this.createHotkeySetting(containerEl, "Previous Slide", "previous", hotkeys.previous);
+		this.createHotkeySetting(containerEl, "Next Slide", "next", hotkeys.next);
+		this.createHotkeySetting(containerEl, "Jump to First", "first", hotkeys.first);
+		this.createHotkeySetting(containerEl, "Jump to Last", "last", hotkeys.last);
+		this.createHotkeySetting(containerEl, "Close Lightbox", "escape", hotkeys.escape);
+		this.createHotkeySetting(containerEl, "Toggle Lightbox", "toggleLightbox", hotkeys.toggleLightbox);
+		this.createHotkeySetting(containerEl, "Toggle Info Sidebar", "toggleInfo", hotkeys.toggleInfo);
+	}
+
+	private createHotkeySetting(
+		containerEl: HTMLElement,
+		name: string,
+		key: keyof LiteGallerySettings["hotkeys"],
+		currentValue: string
+	) {
+		new Setting(containerEl)
+			.setName(name)
+			.addText((text) =>
+				text
+					.setPlaceholder("Key")
+					.setValue(currentValue === " " ? "Space" : currentValue)
+					.onChange(async (value) => {
+						let finalValue = value;
+						if (value.toLowerCase() === "space") finalValue = " ";
+						
+						this.plugin.settings.hotkeys[key] = finalValue;
 						await this.plugin.saveSettings();
 					})
 			);
