@@ -1,4 +1,4 @@
-import { Plugin } from "obsidian";
+import { Plugin, Editor } from "obsidian";
 import { GalleryProcessor } from "./processors/GalleryProcessor";
 import {
 	LiteGallerySettings,
@@ -29,6 +29,16 @@ export default class LiteGallery extends Plugin {
 		await this.loadSettings();
 
 		this.addSettingTab(new LiteGallerySettingTab(this.app, this));
+
+		this.addCommand({
+			id: "insert-litegal-codeblock",
+			name: "Insert gallery code block",
+			editorCallback: (editor: Editor) => {
+				editor.replaceSelection("```litegal\n\n```");
+				const cursor = editor.getCursor();
+				editor.setCursor(cursor.line - 1, 0);
+			},
+		});
 
 		this.registerMarkdownCodeBlockProcessor("litegal", (source, el, ctx) => {
 			var codeBlockSettings: LiteGallerySettings =
